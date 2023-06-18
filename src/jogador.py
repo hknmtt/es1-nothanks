@@ -8,6 +8,15 @@ class Jogador:
         self.numero_fichas = None
         self.pontuacao = 0
 
+    def set_nome(self, nome):
+        self.nome = nome
+    
+    def set_id(self, id):
+        self.id = id
+    
+    def set_fichas(self, numero_fichas):
+        self.numero_fichas = numero_fichas
+
     def instanciar_teste(self, id):
         self.id = id
         self.nome = "Jogador " + str(id)

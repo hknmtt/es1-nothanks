@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import simpledialog
 from tkinter import messagebox
+from baralho import Baralho
 from dog.dog_interface import DogPlayerInterface
 from dog.dog_actor import DogActor
 from dog.start_status import StartStatus
@@ -22,14 +23,12 @@ class InterfaceJogador(DogPlayerInterface):
 
         self.mesa = Mesa()
         # remover depois
-        self.mesa.instanciar_teste()
-        #
-
+        #self.mesa.instanciar_teste()
         player_name = self.request_player_name()
         self.dog_server_interface = DogActor()
         message = self.dog_server_interface.initialize(player_name, self)
         self.notify_result(message)
-        self.update_ui()
+        #self.update_ui()
 
 
     def fill_main_window(self):
@@ -101,6 +100,22 @@ class InterfaceJogador(DogPlayerInterface):
 
     def receive_start(self, start_status: StartStatus):
         message = start_status.get_message()
+        jogadores = start_status.get_players()
+        id_local = start_status.get_local_id()
+        self.mesa.set_jogadores(jogadores)
+        
+        ordem = ['0', '0', '0', '0']
+        for jogador in jogadores:
+            ordem[int(jogador[2])-1] = jogador[1]
+
+        self.mesa.set_ordem(ordem)
+
+        self.mesa.set_jogador_local(id_local)
+
+        self.mesa.set_jogador_em_turno(ordem[0])
+
+        self.update_ui()
+        self.mesa.inicia_jogo()
         self.notify_result(message)
 
     def receive_move(self, a_move: dict):
@@ -122,7 +137,7 @@ class InterfaceJogador(DogPlayerInterface):
 
     def update_ui(self):
         # update fichas jogador local
-        Label(self.player_chips, text= "Fichas: " + str(self.mesa.jogadores[int(self.mesa.jogador_local)].numero_fichas)
+        Label(self.player_chips, text= "Fichas: " + str(self.mesa.get_jogador_por_id(self.mesa.jogador_local).numero_fichas)
               , bg="white", font=("Arial", 20)).place(relx=0.5, rely=0.3, anchor="center")
 
         # update numero de cartas no baralho
@@ -135,8 +150,7 @@ class InterfaceJogador(DogPlayerInterface):
         Label(self.current_card, text=str(self.mesa.carta_virada.valor), bg="grey", font=("Arial", 30)).place(relx=0.5, rely=0.5, anchor="center")
 
         # update jogador em turno
-        id_jogador_em_turno = int(self.mesa.jogador_em_turno)
-        nome_jogador_em_turno = self.mesa.jogadores[id_jogador_em_turno].nome
+        nome_jogador_em_turno = self.mesa.get_jogador_por_id(self.mesa.jogador_em_turno).nome
         Label(self.top_frame, text=f"Turno de : {nome_jogador_em_turno:<25}", bg="white", font=("Arial", 20)).place(relx=0.15, rely=0.5, anchor="center")
 
         # update cartas dos jogadores
@@ -162,10 +176,43 @@ class InterfaceJogador(DogPlayerInterface):
             self.players_rows[i].pack(side="top")
 
     def iniciar_partida(self):
-        start_status = self.dog_server_interface.start_match(2)
+        start_status = self.dog_server_interface.start_match(4)
         message = start_status.get_message()
+        code = start_status.get_code()
+
+        if code == '0' or code == '1':
+            self.notify_result(message)
+        else:
+            baralho = Baralho()
+            self.mesa.set_baralho(baralho)
+            self.mesa.retirar_cartas_iniciais()
+            self.mesa.virar_nova_carta()
+            jogadores = start_status.get_players()
+            id_local = start_status.get_local_id()
+            self.mesa.set_jogadores(jogadores)
+            
+            ordem = ['0', '0', '0', '0']
+            for jogador in jogadores:
+                ordem[int(jogador[2])-1] = jogador[1]
+
+            self.mesa.set_ordem(ordem)
+
+            self.mesa.set_jogador_local(id_local)
+
+            self.mesa.set_jogador_em_turno(ordem[0])
+
+            primeiro = self.mesa.verifica_se_turno_local()
+
+            if not primeiro:
+                # colocar comopr dicionario
+                self.dog_server_interface.send_move(move= {"tipo": "iniciar_partida", "match_status" : "next"})
+
+            self.update_ui()
+            self.mesa.inicia_jogo()
+            self.notify_result(message)
+
+        print(start_status.get_players())
         self.mesa.jogador_local = str(start_status.get_local_id())
-        self.notify_result(message)
 
     def aceitar_carta(self):
         self.dog_server_interface.send_move(move= {"tipo": "aceitar_carta", "match_status" : "next"})
