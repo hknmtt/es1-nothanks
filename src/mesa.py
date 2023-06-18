@@ -130,6 +130,12 @@ class Mesa():
                 self.jogador_em_turno = self.ordem_jogadores[(i+1)%4]
                 break
     
+    def anterior_jogador(self):
+        for i in range(4):
+            if self.ordem_jogadores[i] == self.jogador_em_turno:
+                self.jogador_em_turno = self.ordem_jogadores[(i-1)%4]
+                break
+    
     def get_fichas_acumuladas(self):
         return self.fichas_acumuladas
     

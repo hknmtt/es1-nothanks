@@ -124,12 +124,13 @@ class InterfaceJogador(DogPlayerInterface):
             self.mesa.proximo_jogador()
             carta_virada = self.mesa.get_carta_virada()
             
-            if a_move["carta_virada"] != carta_virada:
+            if a_move["carta_virada"] != carta_virada and a_move["carta_virada"] != '0':
                 num_fichas = self.mesa.get_fichas_acumuladas()
                 self.mesa.jogador_compra_carta(a_move["player"], carta_virada, num_fichas)
             
             self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
             self.mesa.set_baralho_codificado(a_move["baralho"])
+            self.mesa.set_fichas(a_move["fichas"])
 
             self.update_ui()
         elif a_move["match_status"] == 'finished':
@@ -221,10 +222,10 @@ class InterfaceJogador(DogPlayerInterface):
 
             if not primeiro:
                 # colocar comopr dicionario
+                self.mesa.anterior_jogador()
                 self.dog_server_interface.send_move(move= self.mesa.compor_dict_enviar_jogada())
 
             self.update_ui()
-            self.mesa.inicia_jogo()
             self.notify_result(message)
 
         print(start_status.get_players())
