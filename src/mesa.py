@@ -45,7 +45,7 @@ class Mesa():
     def terminar_jogo(self):
         self.jogo_andamento = False
     
-    def inicia_jogo(self):
+    def iniciar_jogo(self):
         self.jogo_andamento = True
 
     def set_jogadores(self, jogadores):

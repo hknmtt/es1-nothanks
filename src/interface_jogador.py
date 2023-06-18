@@ -116,7 +116,7 @@ class InterfaceJogador(DogPlayerInterface):
         self.mesa.set_jogador_em_turno(ordem[0])
 
         self.update_ui()
-        self.mesa.inicia_jogo()
+        self.mesa.iniciar_jogo()
         self.notify_result(message)
 
     def receive_move(self, a_move: dict):
@@ -199,6 +199,7 @@ class InterfaceJogador(DogPlayerInterface):
             self.notify_result(message)
         else:
             baralho = Baralho()
+            self.mesa.iniciar_jogo()
             self.mesa.set_baralho(baralho)
             self.mesa.retirar_cartas_iniciais()
             self.mesa.virar_nova_carta()
