@@ -6,6 +6,7 @@ from dog.dog_interface import DogPlayerInterface
 from dog.dog_actor import DogActor
 from dog.start_status import StartStatus
 from mesa import Mesa
+from carta import Carta
 
 class InterfaceJogador(DogPlayerInterface):
     def __init__(self):
@@ -119,8 +120,22 @@ class InterfaceJogador(DogPlayerInterface):
         self.notify_result(message)
 
     def receive_move(self, a_move: dict):
-        print("Recebeu movimento")
-        print(a_move)
+        if a_move["match_status"] == 'next':
+            self.mesa.proximo_jogador()
+            carta_virada = self.mesa.get_carta_virada()
+            
+            if a_move["carta_virada"] != carta_virada:
+                num_fichas = self.mesa.get_fichas_acumuladas()
+                self.mesa.jogador_compra_carta(a_move["player"], carta_virada, num_fichas)
+            
+            self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
+            self.mesa.set_baralho_codificado(a_move["baralho"])
+
+            self.update_ui()
+        elif a_move["match_status"] == 'finished':
+            self.mesa.terminar_jogo()
+            self.notify_result(f"O jogador {a_move['vencedor']} venceu a partida!")
+            self.fechar_programa()
 
     def receive_withdrawal_notification(self):
         self.notify_result("Um jogador abandonou a partida")
@@ -133,7 +148,7 @@ class InterfaceJogador(DogPlayerInterface):
         messagebox.showinfo(message=message)
 
     def fechar_programa(self):
-        exit()
+        self.root.destroy()
 
     def update_ui(self):
         # update fichas jogador local

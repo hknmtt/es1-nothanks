@@ -20,13 +20,13 @@ class Baralho:
         else:
             return self.cartas.pop()
         
-    def encode(self):
+    def codifica(self):
         baralho = []
         for carta in self.cartas:
             baralho.append(str(carta.valor))
         return ",".join(baralho)
 
-    def decode(self, baralho_codificado):
+    def decodifica(self, baralho_codificado):
         cartas = baralho_codificado.split(",")
         baralho = []
         for carta in cartas:

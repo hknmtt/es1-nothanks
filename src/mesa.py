@@ -22,6 +22,12 @@ class Mesa():
     def set_baralho(self, baralho):
         self.baralho = baralho
 
+    def set_baralho_codificado(self, baralho_codificado):
+        self.baralho.decodifica(baralho_codificado)
+
+    def set_carta_virada(self, carta_virada):
+        self.carta_virada = carta_virada
+
     def retirar_cartas_iniciais(self):
         for i in range(4):
             self.baralho.retirar_carta()
@@ -75,16 +81,16 @@ class Mesa():
             jogada = {
                 'player' : self.jogador_em_turno,
                 'match_status' : match_status,
-                'baralho' : self.baralho.encode(),
+                'baralho' : self.baralho.codifica(),
                 'carta_virada' : self.carta_virada.valor,
                 'fichas' : self.fichas_acumuladas,
-                'vencedor' : self.vencedor,
+                'vencedor' : self.vencedor.get_nome(),
             }
         else:
             jogada = {
                 'player' : self.jogador_em_turno,
                 'match_status' : match_status,
-                'baralho' : self.baralho.encode(),
+                'baralho' : self.baralho.codifica(),
                 'carta_virada' : self.carta_virada.valor,
                 'fichas' : self.fichas_acumuladas,
             }
@@ -93,7 +99,7 @@ class Mesa():
     
     
     def jogador_possui_fichas(self, id):
-        return self.get_jogador_por_id(id).numero_fichas > 0
+        return self.get_jogador_por_id(id).possui_fichas()
     
     def jogador_local_possui_fichas(self):
         return self.jogador_possui_fichas(self.jogador_local)
@@ -114,6 +120,9 @@ class Mesa():
     
     def add_ficha(self):
         self.fichas_acumuladas += 1
+    
+    def set_fichas(self, fichas):
+        self.fichas_acumuladas = fichas
 
     def proximo_jogador(self):
         for i in range(4):
@@ -128,7 +137,28 @@ class Mesa():
         return self.carta_virada
     
     def atribuir_vencedor(self):
-        pass
+        self.vencedor = self.jogadores[0]
+        for jogador in self.jogadores:
+            lista_sequencias = []
+            sequencia = []
+            carta_anterior = -1
+
+            for carta in jogador.cartas:
+                if carta.valor == carta_anterior + 1:
+                    sequencia.append(carta.valor)
+                else:
+                    lista_sequencias.append(sequencia)
+                    sequencia = [carta.valor]
+                carta_anterior = carta.valor
+
+            lista_sequencias.append(sequencia)
+
+            for sequencia in lista_sequencias:
+                jogador.pontuacao += min(sequencia)
+        
+            if jogador.pontuacao < self.vencedor.pontuacao:
+                self.vencedor = jogador
+            
 
     def instanciar_teste(self):
         self.baralho.instanciar_teste()

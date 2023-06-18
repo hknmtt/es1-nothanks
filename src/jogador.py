@@ -10,6 +10,9 @@ class Jogador:
 
     def set_nome(self, nome):
         self.nome = nome
+
+    def get_nome(self):
+        return self.nome
     
     def set_id(self, id):
         self.id = id
@@ -22,6 +25,9 @@ class Jogador:
     
     def adiciona_fichas(self, numero_fichas):
         self.numero_fichas += numero_fichas
+
+    def possui_fichas(self):
+        return self.numero_fichas > 0
     
     def reordenar_cartas(self):
         # bubble sort
