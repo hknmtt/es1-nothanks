@@ -68,6 +68,68 @@ class Mesa():
                 return jogador
         raise Exception("Jogador não encontrado")
 
+    def compor_dict_enviar_jogada(self):
+        match_status = 'next'
+        if self.jogo_andamento == False:
+            match_status = 'finished'
+            jogada = {
+                'player' : self.jogador_em_turno,
+                'match_status' : match_status,
+                'baralho' : self.baralho.encode(),
+                'carta_virada' : self.carta_virada.valor,
+                'fichas' : self.fichas_acumuladas,
+                'vencedor' : self.vencedor,
+            }
+        else:
+            jogada = {
+                'player' : self.jogador_em_turno,
+                'match_status' : match_status,
+                'baralho' : self.baralho.encode(),
+                'carta_virada' : self.carta_virada.valor,
+                'fichas' : self.fichas_acumuladas,
+            }
+        
+        return jogada
+    
+    
+    def jogador_possui_fichas(self, id):
+        return self.get_jogador_por_id(id).numero_fichas > 0
+    
+    def jogador_local_possui_fichas(self):
+        return self.jogador_possui_fichas(self.jogador_local)
+    
+    def jogador_remove_ficha(self, id):
+        self.get_jogador_por_id(id).remove_ficha()
+
+    def jogador_local_remove_ficha(self):
+        self.jogador_remove_ficha(self.jogador_local)
+
+    def jogador_compra_carta(self, id, carta, fichas):
+        self.get_jogador_por_id(id).adiciona_carta(carta)
+        self.get_jogador_por_id(id).adiciona_fichas(fichas)
+        self.get_jogador_por_id(id).reordenar_cartas()
+
+    def jogador_local_compra_carta(self, carta, fichas):
+        self.jogador_compra_carta(self.jogador_local, carta, fichas)
+    
+    def add_ficha(self):
+        self.fichas_acumuladas += 1
+
+    def proximo_jogador(self):
+        for i in range(4):
+            if self.ordem_jogadores[i] == self.jogador_em_turno:
+                self.jogador_em_turno = self.ordem_jogadores[(i+1)%4]
+                break
+    
+    def get_fichas_acumuladas(self):
+        return self.fichas_acumuladas
+    
+    def get_carta_virada(self):
+        return self.carta_virada
+    
+    def atribuir_vencedor(self):
+        pass
+
     def instanciar_teste(self):
         self.baralho.instanciar_teste()
         for i in range(4):

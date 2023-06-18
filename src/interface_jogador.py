@@ -205,7 +205,7 @@ class InterfaceJogador(DogPlayerInterface):
 
             if not primeiro:
                 # colocar comopr dicionario
-                self.dog_server_interface.send_move(move= {"tipo": "iniciar_partida", "match_status" : "next"})
+                self.dog_server_interface.send_move(move= self.mesa.compor_dict_enviar_jogada())
 
             self.update_ui()
             self.mesa.inicia_jogo()
@@ -215,15 +215,52 @@ class InterfaceJogador(DogPlayerInterface):
         self.mesa.jogador_local = str(start_status.get_local_id())
 
     def aceitar_carta(self):
-        self.dog_server_interface.send_move(move= {"tipo": "aceitar_carta", "match_status" : "next"})
-        self.notify_result("Aceitou carta")
+        turno_jogador_local = self.mesa.verifica_se_turno_local()
+
+        if turno_jogador_local:
+            fichas_mesas = self.mesa.get_fichas_acumuladas()
+            carta_virada = self.mesa.get_carta_virada()
+
+            self.mesa.jogador_local_compra_carta(carta_virada, fichas_mesas)
+
+            match_status = self.mesa.virar_nova_carta()
+
+            if match_status == 'finished':
+                self.mesa.atribuir_vencedor()
+
+            move_to_send = self.mesa.compor_dict_enviar_jogada()
+
+            self.mesa.proximo_jogador()
+
+            self.dog_server_interface.send_move(move= move_to_send)
+
+            self.update_ui()
+
+        else:
+            self.notify_result("Não é seu turno")
 
     def recusar_carta(self):
-        self.mesa.fichas_acumuladas += 1
-        self.mesa.jogadores[int(self.mesa.jogador_local)].numero_fichas -= 1
-        self.update_ui()
-        self.dog_server_interface.send_move(move= {"tipo": "recusar_carta", "match_status" : "next"})
-        self.notify_result("Recusou carta")
+        turno_jogador_local = self.mesa.verifica_se_turno_local()
+
+        if turno_jogador_local:
+            possui_fichas = self.mesa.jogador_local_possui_fichas()
+            if possui_fichas:
+                self.mesa.jogador_local_remove_ficha()
+                self.mesa.add_ficha()
+
+                move_to_send = self.mesa.compor_dict_enviar_jogada()
+                
+                self.mesa.proximo_jogador()
+
+                self.dog_server_interface.send_move(move=move_to_send)
+
+                self.update_ui()
+
+            else:
+                self.notify_result("Não possui fichas")
+        else:
+            self.notify_result("Não é seu turno")
+
 
 
     # def open_popup(self, pop_up_text):

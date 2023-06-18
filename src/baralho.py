@@ -19,6 +19,19 @@ class Baralho:
             return Carta(0)
         else:
             return self.cartas.pop()
+        
+    def encode(self):
+        baralho = []
+        for carta in self.cartas:
+            baralho.append(str(carta.valor))
+        return ",".join(baralho)
+
+    def decode(self, baralho_codificado):
+        cartas = baralho_codificado.split(",")
+        baralho = []
+        for carta in cartas:
+            baralho.append(Carta(int(carta)))
+        self.cartas = baralho        
     
     def __len__(self):
         return len(self.cartas)

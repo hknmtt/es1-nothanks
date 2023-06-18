@@ -16,6 +16,20 @@ class Jogador:
     
     def set_fichas(self, numero_fichas):
         self.numero_fichas = numero_fichas
+    
+    def adiciona_carta(self, carta):
+        self.cartas.append(carta)
+    
+    def adiciona_fichas(self, numero_fichas):
+        self.numero_fichas += numero_fichas
+    
+    def reordenar_cartas(self):
+        # bubble sort
+        qtd_cartas = len(self.cartas)
+        for i in range(qtd_cartas):
+            for j in range(i+1, qtd_cartas):
+                if self.cartas[i].valor > self.cartas[j].valor:
+                    self.cartas[i], self.cartas[j] = self.cartas[j], self.cartas[i]
 
     def instanciar_teste(self, id):
         self.id = id
