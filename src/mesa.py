@@ -36,7 +36,6 @@ class Mesa():
             self.jogadores[i].set_fichas(11)
 
     def set_ordem(self, ordem):
-        print(ordem)
         self.ordem_jogadores = ordem
 
     def set_jogador_local(self, jogador_local):
