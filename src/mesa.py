@@ -62,6 +62,9 @@ class Mesa():
     
     def get_carta_virada(self):
         return self.carta_virada
+    
+    def get_nome_vencedor(self):
+        return self.vencedor.get_nome()
 
     def retirar_cartas_iniciais(self):
         for i in range(4):
@@ -144,15 +147,7 @@ class Mesa():
         for i in range(4):
             if self.ordem_jogadores[i] == self.jogador_em_turno:
                 self.jogador_em_turno = self.ordem_jogadores[(i+1)%4]
-                break
-    
-    def anterior_jogador(self):
-        for i in range(4):
-            if self.ordem_jogadores[i] == self.jogador_em_turno:
-                self.jogador_em_turno = self.ordem_jogadores[(i-1)%4]
-                break
-    
-   
+                break 
     
     def atribuir_vencedor(self):
         self.vencedor = self.jogadores[0]
@@ -161,7 +156,7 @@ class Mesa():
             sequencia = []
             carta_anterior = -1
 
-            for carta in jogador.cartas:
+            for carta in jogador.get_cartas():
                 if carta.valor == carta_anterior + 1:
                     sequencia.append(carta.valor)
                 else:
@@ -173,9 +168,9 @@ class Mesa():
 
             for sequencia in lista_sequencias:
                 if sequencia:
-                    jogador.pontuacao += min(sequencia)
+                    jogador.add_pontuacao(sequencia)
         
-            if jogador.pontuacao < self.vencedor.pontuacao:
+            if jogador.get_pontuacao() < self.vencedor.get_pontuacao():
                 self.vencedor = jogador
             
 
