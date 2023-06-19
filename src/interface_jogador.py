@@ -154,6 +154,15 @@ class InterfaceJogador(DogPlayerInterface):
 
             self.update_ui()
         elif a_move["match_status"] == 'finished':
+            if a_move["aceitou"] == True:
+                self.mesa.jogador_compra_carta(a_move["player"], Carta(int(a_move["carta_comprada"])), int(a_move["fichas"]))
+
+            self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
+            self.mesa.set_baralho_codificado(a_move["baralho"])
+            self.mesa.set_fichas(a_move["fichas"])
+
+            self.update_ui()
+
             self.mesa.terminar_jogo()
             self.notify_result(f"O jogador {a_move['vencedor']} venceu a partida!")
             self.fechar_programa()
@@ -277,6 +286,11 @@ class InterfaceJogador(DogPlayerInterface):
             self.mesa.proximo_jogador()
 
             self.update_ui()
+
+            if match_status == 'finished':
+                self.mesa.terminar_jogo()
+                self.notify_result(f"O jogador {self.mesa.vencedor} venceu a partida!")
+                self.fechar_programa()
 
         else:
             self.notify_result("Não é seu turno")

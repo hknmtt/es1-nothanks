@@ -162,7 +162,8 @@ class Mesa():
             lista_sequencias.append(sequencia)
 
             for sequencia in lista_sequencias:
-                jogador.pontuacao += min(sequencia)
+                if sequencia:
+                    jogador.pontuacao += min(sequencia)
         
             if jogador.pontuacao < self.vencedor.pontuacao:
                 self.vencedor = jogador
