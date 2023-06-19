@@ -74,7 +74,7 @@ class Mesa():
                 return jogador
         raise Exception("Jogador não encontrado")
 
-    def compor_dict_enviar_jogada(self):
+    def compor_dict_enviar_jogada(self, aceitou, carta):
         match_status = 'next'
         if self.jogo_andamento == False:
             match_status = 'finished'
@@ -89,6 +89,8 @@ class Mesa():
         else:
             jogada = {
                 'player' : self.jogador_em_turno,
+                'aceitou' : aceitou,
+                'carta_comprada' : carta,
                 'match_status' : match_status,
                 'baralho' : self.baralho.codifica(),
                 'carta_virada' : self.carta_virada.valor,

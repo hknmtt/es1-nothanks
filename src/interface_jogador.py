@@ -122,22 +122,16 @@ class InterfaceJogador(DogPlayerInterface):
     def receive_move(self, a_move: dict):
         print(a_move)
         if a_move["match_status"] == 'next':
-            carta_virada = self.mesa.get_carta_virada()
+            if a_move["aceitou"] == True:
+                self.mesa.jogador_compra_carta(a_move["player"], Carta(int(a_move["carta_comprada"])), int(a_move["fichas"]))
 
-            if carta_virada.valor == 0:
-                self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
-                self.mesa.set_baralho_codificado(a_move["baralho"])
-                self.mesa.set_fichas(a_move["fichas"])
-            else:
-                self.mesa.proximo_jogador()
+            self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
+            self.mesa.set_baralho_codificado(a_move["baralho"])
+            self.mesa.set_fichas(a_move["fichas"])
+            print(f'jogador em turno {self.mesa.ordem_jogadores[(a_move["order"] - 1) % 4]}')
+            self.mesa.set_jogador_em_turno(self.mesa.ordem_jogadores[(a_move["order"] - 1) % 4])
 
-                if a_move["carta_virada"] != carta_virada:
-                    num_fichas = self.mesa.get_fichas_acumuladas()
-                    self.mesa.jogador_compra_carta(a_move["player"], carta_virada, num_fichas)
-
-                self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
-                self.mesa.set_baralho_codificado(a_move["baralho"])
-                self.mesa.set_fichas(a_move["fichas"])
+            
 
             self.update_ui()
         elif a_move["match_status"] == 'finished':
@@ -225,11 +219,7 @@ class InterfaceJogador(DogPlayerInterface):
 
             self.mesa.set_jogador_em_turno(ordem[0])
 
-            primeiro = self.mesa.verifica_se_turno_local()
-
-            if not primeiro:
-                # colocar comopr dicionario
-                self.dog_server_interface.send_move(move= self.mesa.compor_dict_enviar_jogada())
+            self.dog_server_interface.send_move(move= self.mesa.compor_dict_enviar_jogada(aceitou=False, carta=0))
 
             self.update_ui()
             self.notify_result(message)
@@ -242,20 +232,19 @@ class InterfaceJogador(DogPlayerInterface):
 
         if turno_jogador_local:
             fichas_mesas = self.mesa.get_fichas_acumuladas()
-            carta_virada = self.mesa.get_carta_virada()
+            carta_comprada = self.mesa.get_carta_virada()
 
-            self.mesa.jogador_local_compra_carta(carta_virada, fichas_mesas)
+            self.mesa.jogador_local_compra_carta(carta_comprada, fichas_mesas)
 
             match_status = self.mesa.virar_nova_carta()
 
             if match_status == 'finished':
                 self.mesa.atribuir_vencedor()
 
-            move_to_send = self.mesa.compor_dict_enviar_jogada()
-
-            self.mesa.proximo_jogador()
+            move_to_send = self.mesa.compor_dict_enviar_jogada(aceitou=True, carta=carta_comprada.valor)
 
             self.dog_server_interface.send_move(move= move_to_send)
+            self.mesa.proximo_jogador()
 
             self.update_ui()
 
@@ -271,11 +260,10 @@ class InterfaceJogador(DogPlayerInterface):
                 self.mesa.jogador_local_remove_ficha()
                 self.mesa.add_ficha()
 
-                move_to_send = self.mesa.compor_dict_enviar_jogada()
-                
-                self.mesa.proximo_jogador()
+                move_to_send = self.mesa.compor_dict_enviar_jogada(aceitou=False, carta = 0)
 
                 self.dog_server_interface.send_move(move=move_to_send)
+                self.mesa.proximo_jogador()
 
                 self.update_ui()
 
