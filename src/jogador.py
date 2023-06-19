@@ -37,12 +37,6 @@ class Jogador:
                 if self.cartas[i].valor > self.cartas[j].valor:
                     self.cartas[i], self.cartas[j] = self.cartas[j], self.cartas[i]
 
-    def instanciar_teste(self, id):
-        self.id = id
-        self.nome = "Jogador " + str(id)
-        self.numero_fichas = id*2 + 1
-        self.cartas = [Carta(id+1), Carta(id+2), Carta(id+3)]
-
     def remove_ficha(self):
         self.numero_fichas = self.numero_fichas - 1
         
