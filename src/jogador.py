@@ -42,4 +42,7 @@ class Jogador:
         self.nome = "Jogador " + str(id)
         self.numero_fichas = id*2 + 1
         self.cartas = [Carta(id+1), Carta(id+2), Carta(id+3)]
+
+    def remove_ficha(self):
+        self.numero_fichas = self.numero_fichas - 1
         

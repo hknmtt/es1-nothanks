@@ -1,1 +1,7 @@
 src/venv/
+
+src/__pycache__/
+
+src/dog/__pycache__/
+
+.idea/

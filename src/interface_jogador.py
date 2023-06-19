@@ -120,17 +120,24 @@ class InterfaceJogador(DogPlayerInterface):
         self.notify_result(message)
 
     def receive_move(self, a_move: dict):
+        print(a_move)
         if a_move["match_status"] == 'next':
-            self.mesa.proximo_jogador()
             carta_virada = self.mesa.get_carta_virada()
-            
-            if a_move["carta_virada"] != carta_virada and a_move["carta_virada"] != '0':
-                num_fichas = self.mesa.get_fichas_acumuladas()
-                self.mesa.jogador_compra_carta(a_move["player"], carta_virada, num_fichas)
-            
-            self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
-            self.mesa.set_baralho_codificado(a_move["baralho"])
-            self.mesa.set_fichas(a_move["fichas"])
+
+            if carta_virada.valor == 0:
+                self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
+                self.mesa.set_baralho_codificado(a_move["baralho"])
+                self.mesa.set_fichas(a_move["fichas"])
+            else:
+                self.mesa.proximo_jogador()
+
+                if a_move["carta_virada"] != carta_virada:
+                    num_fichas = self.mesa.get_fichas_acumuladas()
+                    self.mesa.jogador_compra_carta(a_move["player"], carta_virada, num_fichas)
+
+                self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
+                self.mesa.set_baralho_codificado(a_move["baralho"])
+                self.mesa.set_fichas(a_move["fichas"])
 
             self.update_ui()
         elif a_move["match_status"] == 'finished':
@@ -222,7 +229,6 @@ class InterfaceJogador(DogPlayerInterface):
 
             if not primeiro:
                 # colocar comopr dicionario
-                self.mesa.anterior_jogador()
                 self.dog_server_interface.send_move(move= self.mesa.compor_dict_enviar_jogada())
 
             self.update_ui()
