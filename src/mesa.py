@@ -80,6 +80,8 @@ class Mesa():
             match_status = 'finished'
             jogada = {
                 'player' : self.jogador_em_turno,
+                'aceitou' : aceitou,
+                'carta_comprada' : carta,
                 'match_status' : match_status,
                 'baralho' : self.baralho.codifica(),
                 'carta_virada' : self.carta_virada.valor,

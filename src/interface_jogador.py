@@ -289,7 +289,7 @@ class InterfaceJogador(DogPlayerInterface):
 
             if match_status == 'finished':
                 self.mesa.terminar_jogo()
-                self.notify_result(f"O jogador {self.mesa.vencedor} venceu a partida!")
+                self.notify_result(f"O jogador {self.mesa.vencedor.nome} venceu a partida!")
                 self.fechar_programa()
 
         else:
