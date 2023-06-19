@@ -168,8 +168,13 @@ class Mesa():
 
             for sequencia in lista_sequencias:
                 if sequencia:
-                    jogador.add_pontuacao(sequencia)
-        
+                    jogador.add_pontuacao(min(sequencia))
+
+            print(f'antes fichas {jogador.get_nome()} tem {jogador.get_pontuacao()} pontos - fichas {jogador.get_fichas()}')
+            jogador.set_pontuacao(jogador.get_pontuacao() - jogador.get_fichas())
+
+            print(f'depois fichas {jogador.get_nome()} tem {jogador.get_pontuacao()} pontos')
+            print(f'vencedor {self.vencedor.get_nome()} atual tem {self.vencedor.get_pontuacao()} pontos')
             if jogador.get_pontuacao() < self.vencedor.get_pontuacao():
                 self.vencedor = jogador
             

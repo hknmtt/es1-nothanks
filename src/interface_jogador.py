@@ -134,7 +134,9 @@ class InterfaceJogador(DogPlayerInterface):
 
     def receive_move(self, a_move: dict):
         if a_move["aceitou"] == True:
-            self.mesa.jogador_compra_carta(a_move["player"], Carta(int(a_move["carta_comprada"])), int(a_move["fichas"]))
+            self.mesa.jogador_compra_carta(a_move["player"], Carta(int(a_move["carta_comprada"])), int(self.mesa.get_fichas_acumuladas()))
+        elif a_move["aceitou"] == False and int(a_move["carta_comprada"]) != 0:
+            self.mesa.get_jogador_por_id(a_move["player"]).remove_fha()
 
         self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
         self.mesa.set_baralho_codificado(a_move["baralho"])

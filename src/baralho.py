@@ -4,7 +4,7 @@ from random import shuffle
 class Baralho:
     def __init__(self):
         self.cartas = []
-        for i in range(1, 33):
+        for i in range(1, 15):
             self.cartas.append(Carta(i))
         shuffle(self.cartas)
     

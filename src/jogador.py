@@ -19,15 +19,18 @@ class Jogador:
     
     def set_fichas(self, numero_fichas):
         self.numero_fichas = numero_fichas
+    
+    def get_fichas(self):
+        return self.numero_fichas
+    
+    def set_pontuacao(self, pontuacao):
+        self.pontuacao = pontuacao
 
     def get_pontuacao(self):
         return self.pontuacao
     
     def get_cartas(self):
         return self.cartas
-    
-    def get_nome(self):
-        return self.nome
         
     def add_pontuacao(self, pontos):
         self.pontuacao += pontos
