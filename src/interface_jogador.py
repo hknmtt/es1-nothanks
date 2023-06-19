@@ -23,13 +23,10 @@ class InterfaceJogador(DogPlayerInterface):
         self.fill_main_window()
 
         self.mesa = Mesa()
-        # remover depois
-        #self.mesa.instanciar_teste()
         player_name = self.request_player_name()
         self.dog_server_interface = DogActor()
         message = self.dog_server_interface.initialize(player_name, self)
         self.notify_result(message)
-        #self.update_ui()
 
 
     def fill_main_window(self):
@@ -45,6 +42,9 @@ class InterfaceJogador(DogPlayerInterface):
         self.filemenu.add_command(label="Iniciar Partida", command=self.iniciar_partida)
 
         self.players_rows = []
+        self.ui_player_name_labels = []
+        self.ui_player_cards_labels = [[],[],[],[]]
+        
 
         for i in range(4):
             self.players_rows.append(Frame(self.root, bg="blue", width=1280, height=130))
@@ -52,7 +52,9 @@ class InterfaceJogador(DogPlayerInterface):
 
             player_name_frame = Frame(self.players_rows[i], bg="green", width=80, height=130)
             player_name_frame.grid(row=0, column=0)
-            player_name_label = Label(player_name_frame, text="Player " + str(i + 1), bg="green", font=("Arial", 12)).place(relx=0.5, rely=0.5, anchor="center")
+            self.ui_player_name_labels.append(StringVar())
+            self.ui_player_name_labels[i].set("Player " + str(i + 1))
+            player_name_label = Label(player_name_frame, textvariable=self.ui_player_name_labels[i], bg="green", font=("Arial", 12)).place(relx=0.5, rely=0.5, anchor="center")
 
 
             for j in range(1, 16):
@@ -60,36 +62,46 @@ class InterfaceJogador(DogPlayerInterface):
                 self.players_rows[i].grid_columnconfigure(j, minsize=80)
                 self.players_rows[i].grid_rowconfigure(0, minsize=130)
                 card.grid(row=0, column=j, padx=2, pady=2)
-                card_label = Label(card, text="", bg="white", font=("Arial", 30))
-                
-                # if j <= len(self.cards[i]):
-                #     card_label.config(text=self.cards[i][j - 1], bg="grey")
-                #     card.config(bg="grey")
+
+                self.ui_player_cards_labels[i].append(StringVar())
+                self.ui_player_cards_labels[i][j - 1].set('')
+                card_label = Label(card, textvariable=self.ui_player_cards_labels[i][j-1], bg="white", font=("Arial", 30))
 
                 card_label.place(relx=0.5, rely=0.5, anchor="center")
 
 
 
-            # Text of whos turn is it on top_frame left side anchor left
-        self.turn_label = Label(self.top_frame, text="", bg="white", font=("Arial", 20)).place(relx=0.15, rely=0.5, anchor="center")
+        # Text of whos turn is it on top_frame left side anchor left
+        self.ui_turn_label = StringVar()
+        self.ui_turn_label.set("Turno de: ")
+        self.turn_label = Label(self.top_frame, textvariable=self.ui_turn_label, bg="white", font=("Arial", 20)).place(relx=0.15, rely=0.5, anchor="center")
+
+        self.ui_remaining_cards_deck_label = StringVar()
+        self.ui_remaining_cards_deck_label.set("")
 
         self.remaining_cards_deck = Frame(self.top_frame, bg="green", width=80, height=120)
         self.remaining_cards_deck.place(relx=0.4, rely=0.5, anchor="center")
-        self.remaining_cards_deck_label = Label(self.remaining_cards_deck, text="", bg="green", font=("Arial", 30)).place(relx=0.5, rely=0.5, anchor="center")
+        self.remaining_cards_deck_label = Label(self.remaining_cards_deck, textvariable=self.ui_remaining_cards_deck_label , bg="green", font=("Arial", 30)).place(relx=0.5, rely=0.5, anchor="center")
 
         # Grey current card with red circle indicating number of chips on it
         self.current_card = Frame(self.top_frame, bg="grey", width=80, height=120)
         self.current_card.place(relx=0.5, rely=0.5, anchor="center")
-        self.current_card_label = Label(self.current_card, text="", bg="grey", font=("Arial", 30)).place(relx=0.5, rely=0.5, anchor="center")
+        self.ui_current_card_label = StringVar()
+        self.ui_current_card_label.set("")
+        self.current_card_label = Label(self.current_card, textvariable=self.ui_current_card_label, bg="grey", font=("Arial", 30)).place(relx=0.5, rely=0.5, anchor="center")
         self.current_card_chips = Frame(self.current_card, bg="red", width=30, height=30)
         self.current_card_chips.place(relx=0.5, rely=0.8, anchor="center")
-        self.current_card_chips_label = Label(self.current_card_chips, text="", bg="red", font=("Arial", 12)).place(relx=0.5, rely=0.5, anchor="center")
+        self.ui_current_card_chips_label = StringVar()
+        self.ui_current_card_chips_label.set("")
+        self.current_card_chips_label = Label(self.current_card_chips, textvariable=self.ui_current_card_chips_label, bg="red", font=("Arial", 12)).place(relx=0.5, rely=0.5, anchor="center")
 
         # top_frame right side
         # text of how many chips player has above two buttons, one to take card and other to pay chip
         self.player_chips = Frame(self.top_frame, bg="grey", width=400, height=120)
         self.player_chips.place(relx=0.8, rely=0.5, anchor="center")
-        self.player_chips_label = Label(self.player_chips, text="", bg="white", font=("Arial", 20)).place(relx=0.5, rely=0.3, anchor="center")
+        self.ui_player_chips_label = StringVar()
+        self.ui_player_chips_label.set("")
+        self.player_chips_label = Label(self.player_chips, textvariable=self.ui_player_chips_label, bg="white", font=("Arial", 20)).place(relx=0.5, rely=0.3, anchor="center")
 
         # button to take card
         self.take_card_button = Button(self.player_chips, text="Aceitar carta", bg="white", font=("Arial", 14), command=lambda: self.aceitar_carta())
@@ -99,6 +111,7 @@ class InterfaceJogador(DogPlayerInterface):
         self.pay_chip_button = Button(self.player_chips, text="Não, obrigado", bg="white", font=("Arial", 14), command=lambda: self.recusar_carta())
         self.pay_chip_button.place(relx=0.8, rely=0.7, anchor="center")
 
+    
     def receive_start(self, start_status: StartStatus):
         message = start_status.get_message()
         jogadores = start_status.get_players()
@@ -120,27 +133,18 @@ class InterfaceJogador(DogPlayerInterface):
         self.notify_result(message)
 
     def receive_move(self, a_move: dict):
-        print(a_move)
-        if a_move["match_status"] == 'next':
-            carta_virada = self.mesa.get_carta_virada()
+        if a_move["aceitou"] == True:
+            self.mesa.jogador_compra_carta(a_move["player"], Carta(int(a_move["carta_comprada"])), int(a_move["fichas"]))
 
-            if carta_virada.valor == 0:
-                self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
-                self.mesa.set_baralho_codificado(a_move["baralho"])
-                self.mesa.set_fichas(a_move["fichas"])
-            else:
-                self.mesa.proximo_jogador()
+        self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
+        self.mesa.set_baralho_codificado(a_move["baralho"])
+        self.mesa.set_fichas(a_move["fichas"])
+        self.mesa.set_jogador_em_turno(self.mesa.ordem_jogadores[(a_move["order"] - 1) % 4])
 
-                if a_move["carta_virada"] != carta_virada:
-                    num_fichas = self.mesa.get_fichas_acumuladas()
-                    self.mesa.jogador_compra_carta(a_move["player"], carta_virada, num_fichas)
+        self.update_ui()
 
-                self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
-                self.mesa.set_baralho_codificado(a_move["baralho"])
-                self.mesa.set_fichas(a_move["fichas"])
+        if a_move["match_status"] == 'finished':
 
-            self.update_ui()
-        elif a_move["match_status"] == 'finished':
             self.mesa.terminar_jogo()
             self.notify_result(f"O jogador {a_move['vencedor']} venceu a partida!")
             self.fechar_programa()
@@ -160,48 +164,33 @@ class InterfaceJogador(DogPlayerInterface):
 
     def update_ui(self):
         # update fichas jogador local
-        Label(self.player_chips, text= "Fichas: " + str(self.mesa.get_jogador_por_id(self.mesa.jogador_local).numero_fichas)
-              , bg="white", font=("Arial", 20)).place(relx=0.5, rely=0.3, anchor="center")
+        self.ui_player_chips_label.set("Fichas: " + str(self.mesa.get_jogador_por_id(self.mesa.jogador_local).numero_fichas))
 
         # update numero de cartas no baralho
-        Label(self.remaining_cards_deck, text=str(len(self.mesa.baralho)), bg="green", font=("Arial", 30)).place(relx=0.5, rely=0.5, anchor="center")
+        self.ui_remaining_cards_deck_label.set(str(len(self.mesa.baralho)))
 
         # update fichas na carta virada
-        Label(self.current_card_chips, text=str(self.mesa.fichas_acumuladas), bg="red", font=("Arial", 12)).place(relx=0.5, rely=0.5, anchor="center")
-        
+        self.ui_current_card_chips_label.set(str(self.mesa.fichas_acumuladas))
+
         # update carta virada
-        Label(self.current_card, text=str(self.mesa.carta_virada.valor), bg="grey", font=("Arial", 30)).place(relx=0.5, rely=0.5, anchor="center")
+        self.ui_current_card_label.set(str(self.mesa.carta_virada.valor))
 
         # update jogador em turno
         nome_jogador_em_turno = self.mesa.get_jogador_por_id(self.mesa.jogador_em_turno).nome
-        Label(self.top_frame, text=f"Turno de : {nome_jogador_em_turno:<25}", bg="white", font=("Arial", 20)).place(relx=0.15, rely=0.5, anchor="center")
+        self.ui_turn_label.set(f"Turno de : {nome_jogador_em_turno:<25}")
 
-        # update cartas dos jogadores
         for i in range(4):
-            player_name_frame = Frame(self.players_rows[i], bg="green", width=80, height=130)
-            player_name_frame.grid(row=0, column=0)
-            player_name_label = Label(player_name_frame, text=str(self.mesa.jogadores[i].nome), bg="green", font=("Arial", 12)).place(relx=0.5, rely=0.5, anchor="center")
-
-
+            self.ui_player_name_labels[i].set(str(self.mesa.jogadores[i].nome))
             for j in range(1, 16):
-                card = Frame(self.players_rows[i], bg="white", width=60, height=90)
-                self.players_rows[i].grid_columnconfigure(j, minsize=80)
-                self.players_rows[i].grid_rowconfigure(0, minsize=130)
-                card.grid(row=0, column=j, padx=2, pady=2)
-                card_label = Label(card, text="", bg="white", font=("Arial", 30))
-                
                 if j <= len(self.mesa.jogadores[i].cartas):
-                    card_label.config(text=self.mesa.jogadores[i].cartas[j - 1].valor, bg="grey")
-                    card.config(bg="grey")
-
-                card_label.place(relx=0.5, rely=0.5, anchor="center")
-
-            self.players_rows[i].pack(side="top")
+                    self.ui_player_cards_labels[i][j-1].set(str(self.mesa.jogadores[i].cartas[j - 1].valor))
+                else:
+                    self.ui_player_cards_labels[i][j-1].set("")
 
     def iniciar_partida(self):
         start_status = self.dog_server_interface.start_match(4)
-        message = start_status.get_message()
         code = start_status.get_code()
+        message = start_status.get_message()
 
         if code == '0' or code == '1':
             self.notify_result(message)
@@ -225,39 +214,38 @@ class InterfaceJogador(DogPlayerInterface):
 
             self.mesa.set_jogador_em_turno(ordem[0])
 
-            primeiro = self.mesa.verifica_se_turno_local()
-
-            if not primeiro:
-                # colocar comopr dicionario
-                self.dog_server_interface.send_move(move= self.mesa.compor_dict_enviar_jogada())
+            self.dog_server_interface.send_move(move= self.mesa.compor_dict_enviar_jogada(aceitou=False, carta=0))
 
             self.update_ui()
             self.notify_result(message)
 
-        print(start_status.get_players())
-        self.mesa.jogador_local = str(start_status.get_local_id())
+
 
     def aceitar_carta(self):
         turno_jogador_local = self.mesa.verifica_se_turno_local()
 
         if turno_jogador_local:
             fichas_mesas = self.mesa.get_fichas_acumuladas()
-            carta_virada = self.mesa.get_carta_virada()
+            carta_comprada = self.mesa.get_carta_virada()
 
-            self.mesa.jogador_local_compra_carta(carta_virada, fichas_mesas)
+            self.mesa.jogador_local_compra_carta(carta_comprada, fichas_mesas)
 
             match_status = self.mesa.virar_nova_carta()
 
             if match_status == 'finished':
                 self.mesa.atribuir_vencedor()
 
-            move_to_send = self.mesa.compor_dict_enviar_jogada()
-
-            self.mesa.proximo_jogador()
+            move_to_send = self.mesa.compor_dict_enviar_jogada(aceitou=True, carta=carta_comprada.valor)
 
             self.dog_server_interface.send_move(move= move_to_send)
+            self.mesa.proximo_jogador()
 
             self.update_ui()
+
+            if match_status == 'finished':
+                self.mesa.terminar_jogo()
+                self.notify_result(f"O jogador {self.mesa.vencedor.nome} venceu a partida!")
+                self.fechar_programa()
 
         else:
             self.notify_result("Não é seu turno")
@@ -271,11 +259,10 @@ class InterfaceJogador(DogPlayerInterface):
                 self.mesa.jogador_local_remove_ficha()
                 self.mesa.add_ficha()
 
-                move_to_send = self.mesa.compor_dict_enviar_jogada()
-                
-                self.mesa.proximo_jogador()
+                move_to_send = self.mesa.compor_dict_enviar_jogada(aceitou=False, carta = 0)
 
                 self.dog_server_interface.send_move(move=move_to_send)
+                self.mesa.proximo_jogador()
 
                 self.update_ui()
 
@@ -283,15 +270,4 @@ class InterfaceJogador(DogPlayerInterface):
                 self.notify_result("Não possui fichas")
         else:
             self.notify_result("Não é seu turno")
-
-
-
-    # def open_popup(self, pop_up_text):
-    #     top= Toplevel(self.root)
-    #     top.title("Child Window")
-    #     top.geometry("300x100")
-    #     Label(top, text=pop_up_text, font=('Arial', 14)).place(relx=0.5, rely=0.5, anchor="center")
-
- 
-interface = InterfaceJogador()
-    
+     

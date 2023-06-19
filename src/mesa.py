@@ -28,6 +28,41 @@ class Mesa():
     def set_carta_virada(self, carta_virada):
         self.carta_virada = carta_virada
 
+    def set_jogadores(self, jogadores):
+        # ['nome', 'id', 'ordem']
+        for i, jogador in enumerate(jogadores):
+            self.jogadores[i].set_nome(jogador[0])
+            self.jogadores[i].set_id(jogador[1])
+            self.jogadores[i].set_fichas(11)
+
+    def set_ordem(self, ordem):
+        print(ordem)
+        self.ordem_jogadores = ordem
+
+    def set_jogador_local(self, jogador_local):
+        self.jogador_local = jogador_local
+
+    def set_jogador_em_turno(self, jogador_em_turno):
+        self.jogador_em_turno = jogador_em_turno
+
+    def get_jogador_por_id(self, id):
+        for jogador in self.jogadores:
+            if jogador.id == id:
+                return jogador
+        raise Exception("Jogador não encontrado")
+    
+    def add_ficha(self):
+        self.fichas_acumuladas += 1
+    
+    def set_fichas(self, fichas):
+        self.fichas_acumuladas = fichas
+
+    def get_fichas_acumuladas(self):
+        return self.fichas_acumuladas
+    
+    def get_carta_virada(self):
+        return self.carta_virada
+
     def retirar_cartas_iniciais(self):
         for i in range(4):
             self.baralho.retirar_carta()
@@ -48,38 +83,21 @@ class Mesa():
     def iniciar_jogo(self):
         self.jogo_andamento = True
 
-    def set_jogadores(self, jogadores):
-        # ['nome', 'id', 'ordem']
-        for i, jogador in enumerate(jogadores):
-            self.jogadores[i].set_nome(jogador[0])
-            self.jogadores[i].set_id(jogador[1])
-            self.jogadores[i].set_fichas(11)
-
-    def set_ordem(self, ordem):
-        print(ordem)
-        self.ordem_jogadores = ordem
-
-    def set_jogador_local(self, jogador_local):
-        self.jogador_local = jogador_local
-
-    def set_jogador_em_turno(self, jogador_em_turno):
-        self.jogador_em_turno = jogador_em_turno
+    
     
     def verifica_se_turno_local(self):
         return self.jogador_local == self.jogador_em_turno
     
-    def get_jogador_por_id(self, id):
-        for jogador in self.jogadores:
-            if jogador.id == id:
-                return jogador
-        raise Exception("Jogador não encontrado")
+    
 
-    def compor_dict_enviar_jogada(self):
+    def compor_dict_enviar_jogada(self, aceitou, carta):
         match_status = 'next'
         if self.jogo_andamento == False:
             match_status = 'finished'
             jogada = {
                 'player' : self.jogador_em_turno,
+                'aceitou' : aceitou,
+                'carta_comprada' : carta,
                 'match_status' : match_status,
                 'baralho' : self.baralho.codifica(),
                 'carta_virada' : self.carta_virada.valor,
@@ -89,6 +107,8 @@ class Mesa():
         else:
             jogada = {
                 'player' : self.jogador_em_turno,
+                'aceitou' : aceitou,
+                'carta_comprada' : carta,
                 'match_status' : match_status,
                 'baralho' : self.baralho.codifica(),
                 'carta_virada' : self.carta_virada.valor,
@@ -118,11 +138,7 @@ class Mesa():
     def jogador_local_compra_carta(self, carta, fichas):
         self.jogador_compra_carta(self.jogador_local, carta, fichas)
     
-    def add_ficha(self):
-        self.fichas_acumuladas += 1
     
-    def set_fichas(self, fichas):
-        self.fichas_acumuladas = fichas
 
     def proximo_jogador(self):
         for i in range(4):
@@ -136,11 +152,7 @@ class Mesa():
                 self.jogador_em_turno = self.ordem_jogadores[(i-1)%4]
                 break
     
-    def get_fichas_acumuladas(self):
-        return self.fichas_acumuladas
-    
-    def get_carta_virada(self):
-        return self.carta_virada
+   
     
     def atribuir_vencedor(self):
         self.vencedor = self.jogadores[0]
@@ -160,23 +172,10 @@ class Mesa():
             lista_sequencias.append(sequencia)
 
             for sequencia in lista_sequencias:
-                jogador.pontuacao += min(sequencia)
+                if sequencia:
+                    jogador.pontuacao += min(sequencia)
         
             if jogador.pontuacao < self.vencedor.pontuacao:
                 self.vencedor = jogador
             
-
-    def instanciar_teste(self):
-        self.baralho.instanciar_teste()
-        for i in range(4):
-            jogador = Jogador()
-            jogador.instanciar_teste(i)
-            self.jogadores.append(jogador)
-        self.carta_virada = self.baralho.retirar_carta()
-        self.fichas_acumuladas = 0
-        self.jogador_local = str(self.jogadores[0].id)
-        self.jogo_andamento = True
-        self.jogador_em_turno = str(self.jogadores[0].id)
-        self.ordem_jogadores = self.jogadores
-    
 
