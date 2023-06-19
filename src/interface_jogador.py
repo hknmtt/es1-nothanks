@@ -133,10 +133,13 @@ class InterfaceJogador(DogPlayerInterface):
         self.notify_result(message)
 
     def receive_move(self, a_move: dict):
+        print(type(a_move["aceitou"]))
+        print(a_move["carta_comprada"])
+        print(type(a_move["carta_comprada"]))
         if a_move["aceitou"] == True:
             self.mesa.jogador_compra_carta(a_move["player"], Carta(int(a_move["carta_comprada"])), int(self.mesa.get_fichas_acumuladas()))
-        elif a_move["aceitou"] == False and int(a_move["carta_comprada"]) != 0:
-            self.mesa.get_jogador_por_id(a_move["player"]).remove_fha()
+        elif a_move["aceitou"] == False and int(a_move["carta_comprada"]) == -1:
+            self.mesa.get_jogador_por_id(a_move["player"]).remove_ficha()
 
         self.mesa.set_carta_virada(Carta(int(a_move["carta_virada"])))
         self.mesa.set_baralho_codificado(a_move["baralho"])
@@ -261,7 +264,7 @@ class InterfaceJogador(DogPlayerInterface):
                 self.mesa.jogador_local_remove_ficha()
                 self.mesa.add_ficha()
 
-                move_to_send = self.mesa.compor_dict_enviar_jogada(aceitou=False, carta = 0)
+                move_to_send = self.mesa.compor_dict_enviar_jogada(aceitou=False, carta = -1)
 
                 self.dog_server_interface.send_move(move=move_to_send)
                 self.mesa.proximo_jogador()
